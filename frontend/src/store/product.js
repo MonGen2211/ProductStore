@@ -8,7 +8,7 @@ export const useProductStore = create((set) => ({
       return { success: false, message: "Please fill in all fields" };
     }
 
-    const res = await fetch("http://localhost:2211/api/product/create", {
+    const res = await fetch("/api/product/create", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -19,5 +19,43 @@ export const useProductStore = create((set) => ({
     set((state) => ({ products: [...state.products, data.data] }));
 
     return { success: true, message: "Product created successfully" };
+  },
+  fetchProduct: async () => {
+    const res = await fetch("/api/product");
+    const data = await res.json();
+    set({ products: data.products });
+  },
+  deleteProduct: async (id) => {
+    const res = await fetch(`/api/product/${id}`, {
+      method: "DELETE",
+    });
+
+    const data = await res.json();
+    if (!data.success) return { success: false, message: data.message };
+
+    set((state) => ({
+      products: state.products.filter((product) => product._id !== id),
+    }));
+    return { success: true, message: data.message };
+  },
+  updateProduct: async (id, productUpdated) => {
+    const res = await fetch(`/api/product/${id}`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(productUpdated),
+    });
+    const data = await res.json();
+
+    if (!data.success) return { success: false, message: data.message };
+
+    set((state) => ({
+      products: state.products.map((product) =>
+        product._id === id ? data.data : product
+      ),
+    }));
+
+    return { success: true, message: data.message };
   },
 }));
