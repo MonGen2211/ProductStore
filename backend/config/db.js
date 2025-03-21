@@ -6,5 +6,6 @@ export const connectDB = async () => {
     console.log("connection Successfully", conn.connection.host);
   } catch (error) {
     console.log("Server die", error.message);
+    process.exit(1);
   }
 };
